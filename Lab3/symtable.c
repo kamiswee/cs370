@@ -1,3 +1,9 @@
+/*
+ * Kay Sweebe
+ * CS371 - S. Cooper
+ * Lab 3 - Symbol Table Tools
+*/
+
 #include<stdio.h>
 /* #include<conio.h> */
 #include<malloc.h>
@@ -389,20 +395,33 @@ struct SymbTab
                 p->next=NULL;
                 last=p;
             }
+            // if the element is any other element, we must find the element first
+            // and then remove it.
             else
             {
+                // Make q to be p.next
                 q=p->next;
+                
+                // iterate the pointers p, q until q is the element we want
                 while(strcmp(q->label,l)!=0)
                 {
                     p=p->next;
                     q=q->next;
                 }
+                
+                // now that the element we want is q, we remove q by removing all 
+                // instances to q. This means we change p.next to be q.next rather than q.
                 p->next=q->next;
             }
+            
+            // Since an element was removed, we reduce the size of our list by one
             size--;
+            
+            // Display to user the table after deletion
             printf("\n\tAfter Deletion:\n");
             Display();
         }
     }
+}
     
     

@@ -51,13 +51,17 @@ extern int yydebug;
   {
     INTEGER = 258,
     VARIABLE = 259,
-    UMINUS = 260
+    P = 260,
+    DECL = 261,
+    UMINUS = 262
   };
 #endif
 /* Tokens.  */
 #define INTEGER 258
 #define VARIABLE 259
-#define UMINUS 260
+#define P 260
+#define DECL 261
+#define UMINUS 262
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

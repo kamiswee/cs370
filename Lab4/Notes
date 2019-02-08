@@ -1,0 +1,43 @@
+BEGINNING OF CLASS
+
+#ifndef
+#define
+
+    // insert prototypes here
+
+#endif
+
+int mem = 0;
+void Display();
+int Delete();
+
+// Fetch address of label
+int FetchAddr (char *lbl);
+
+struct SymbTab
+{
+    char name[10];
+    int offset;
+    
+    
+    
+UNION 
+If we come across '987' an INTEGER.
+Now if we get 'count' we get a variable. 
+We used to have yylval = ato:(yytext)
+Now we have [a-zA-Z]* and we get a token, VARIABLE.
+We want VARIABLE's yylval to be 'count' or a string.
+
+%union {
+    
+}
+
+We can use yylval.string and yylval.value
+
+DECL 
+DECL: INT VAR ';' '\n'
+{
+    printf("var is %s\n", $2)
+}
+
+then try int hello; int x = 5;
