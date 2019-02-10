@@ -1,12 +1,13 @@
 /*	Kay Sweebe
 	CS370
-	January 25, 2019
-	Lab2.2
+	February 10, 2019
+	Lab4
 
 	The changes made to this lab include:
-		- Adding parenthesis (, ) to the regular expression that contains +, -, = and other chars.
-                  Without this, whenever a parenthesis was found, lex did nothing with it. Once we added
-		  the parenthesis, Lex was then able to pass the parenthesis as tokens to Yacc.  
+		- adding a declaration such that if a variable is found, lex returns a token VARIABLE
+          as a string
+        - modifying a declaration such that if a number is found, lex returns a token INTEGER
+          as an integer
 
 */
 
@@ -30,17 +31,40 @@ int mydebug=1;
 
 
 %%
+int   {if (mydebug) fprintf(stderr, "int found\n");}
 
-[a-z]		{if (mydebug) fprintf(stderr,"Letter found\n"); 
-                       yylval=*yytext-'a'; return(VARIABLE);}
-[0-9][0-9]*	{if (mydebug) fprintf(stderr,"Digit found\n"); 
-                       yylval=atoi((const char *)yytext); return(INTEGER);}
+
+[a-zA-Z][a-zA-Z0-9]*		{
+                        // A variable is defined as a letter followed by 
+                        // any number of alphanumeric characters after that.
+                        if (mydebug) fprintf(stderr,"Letter found\n"); 
+                        
+                        // Note: Since we created a union, we need to be specific about
+                        // whether we are sending a string or an integer.
+                        yylval.string = strdup(yytext);
+                        
+                        // Return the token VARIABLE to yacc
+                        return(VARIABLE);}
+                       
+[0-9][0-9]*	{
+                // Intakes a number between 0 and 99
+                if (mydebug) fprintf(stderr,"Digit found\n"); 
+                
+                // Note: Since we created a union, we need to be specific about
+                // whether we are sending a string or an integer.
+                yylval.string=atoi((const char *)yytext); 
+                
+                // Return the token INTEGER to yacc
+                return(INTEGER);
+                       }
+                       
 [ \t]		{if (mydebug) fprintf(stderr,"Whitespace found\n");}
+
 [=\-+*/%&|()] 	{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); 
                        return (*yytext);}
+                       
 \n 		{ if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext); 
                        return (*yytext);}
-[i][n][t]   {if (mydebug) fprintf(stderr, "int found\n");}
 
 
 %%
