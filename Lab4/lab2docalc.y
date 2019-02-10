@@ -5,9 +5,9 @@
  *	Lab2.2
  *
  *	The changes made to this lab include:
- *		- Unary minus was represented as a binary operation. It was changed from the form 
- * 		  "expr '-' expr" to "'-' expr". Unary minus is left associative.
- * 		- Multiplication was missing so I added "expr '*' expr" followed by "{ $$ = $1 * $3; }"
+ *		- Extend the context free grammer of the calculator to intake variables
+ *      - Create a %UNION type in YACC to allow LEX to return integer or string
+ *      - 
  *		  so that the first ($1) and third ($3) tokens are multiplied together. The result is
  *		  stored as an expression.
  *
@@ -32,7 +32,7 @@
  
    The registers are based on 0, so we substract 'a' from each single letter we get.
 
-   based on context, we have YACC do the correct memmory look up or the storage depending
+   based on context, we have YACC do the correct memory look up or the storage depending
    on position
 
    Shaun Cooper
@@ -60,14 +60,21 @@ void yyerror (s)  /* Called by yyparse on error */
 
 
 %}
-/*  defines the start symbol, what values come back from LEX and how the operators are associated  */
+/*  Defines the start symbol, what values come back from LEX and how the operators are 
+    associated.
+    
+    The start symbol is P. We also have tokens INTEGER and VARIABLE. Since a token is
+    going from one to two tokens, we want to include a %UNION type in yacc to specify
+    in our grammer than an expression can be of type integer or string.
 
-%start list
+*/
 
-%token INTEGER
-%token  VARIABLE
-%token P
-%token DECL
+%start P
+
+
+%token <integer> INTEGER 
+%token <string> VARIABLE
+
 
 %left '|'
 %left '&'
@@ -75,9 +82,28 @@ void yyerror (s)  /* Called by yyparse on error */
 %left '*' '/' '%'
 %left UMINUS
 
+%union
+{
+    int integer;
+    char *string;
+}
+
+// We have to tell yacc to consider expressions as numbers and not strings.
+// This is necessary since we added in a union.
+%type <integer> expr
+
 
 
 %%	/* end specs, begin rules  */
+P       :   DECLS list; // declarations first and then list (statements, expressions, etc.)
+
+DECLS   :   DECLS DECL
+        |   /*empty*/
+        ;
+    
+DECL    :   INT VARIABLE ';' '\n' 
+            { fprintf(stderr, "Variable found: %s\n", $2);}
+        ;
 
 list	:	/* empty */
 	|	list stat '\n'
@@ -88,7 +114,8 @@ list	:	/* empty */
 stat	:	expr
 			{ fprintf(stderr,"the anwser is%d\n", $1); }
 	|	VARIABLE '=' expr
-			{ regs[$1] = $3; }
+			{ //regs[$1] = $3; }
+			}
 	;
 
 expr	:	'(' expr ')'
@@ -110,14 +137,16 @@ expr	:	'(' expr ')'
 	|	'-' expr	%prec UMINUS // this was modified
 			{ $$ = -$2; }
 	|	VARIABLE
-			{ $$ = regs[$1]; fprintf(stderr,"found a variable value =%d\n",$1); }
+			{ //$$ = regs[$1]; fprintf(stderr,"found a variable value =%d\n",$1); 
+			}
 	|	INTEGER {$$=$1; fprintf(stderr,"found an integer\n");}
+	
 	;
 
 
 
 %%	/* end of rules, start of program */
 
-main()
+int main()
 { yyparse();
 }
